@@ -64,14 +64,14 @@ export default function Component() {
   )
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <header className="bg-white shadow">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+      <header className="bg-white dark:bg-gray-800 shadow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-center items-center">
           <div className="relative w-full max-w-xl">
             <input
               type="text"
               placeholder="Search prompts..."
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 dark:text-gray-200 dark:bg-gray-700"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -81,11 +81,11 @@ export default function Component() {
       </header>
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <form onSubmit={editingPrompt ? updatePrompt : addPrompt} className="mb-8 bg-white shadow sm:rounded-lg p-6">
+        <form onSubmit={editingPrompt ? updatePrompt : addPrompt} className="mb-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg p-6">
           <div className="mb-4">
             <textarea
               placeholder="Enter your prompt..."
-              className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500"
+              className="w-full px-3 py-2 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700"
               rows={4}
               value={newPrompt.text}
               onChange={(e) => setNewPrompt({ ...newPrompt, text: e.target.value })}
@@ -96,14 +96,14 @@ export default function Component() {
             <input
               type="text"
               placeholder="Prompt Name"
-              className="flex-1 mr-2 px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500"
+              className="flex-1 mr-2 px-3 py-2 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700"
               value={newPrompt.name}
               onChange={(e) => setNewPrompt({ ...newPrompt, name: e.target.value })}
             />
             <input
               type="url"
               placeholder="Prompt Link"
-              className="flex-1 ml-2 px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500"
+              className="flex-1 ml-2 px-3 py-2 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700"
               value={newPrompt.link}
               onChange={(e) => setNewPrompt({ ...newPrompt, link: e.target.value })}
             />
@@ -114,17 +114,17 @@ export default function Component() {
           </button>
         </form>
 
-        <div className="bg-white shadow overflow-hidden sm:rounded-md">
-          <ul className="divide-y divide-gray-200">
+        <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-md">
+          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
             {filteredPrompts.map((prompt) => (
               <li key={prompt.id} className="px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{prompt.name || 'Unnamed Prompt'}</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{prompt.name || 'Unnamed Prompt'}</p>
                     <a href={prompt.link} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-500 hover:underline">
                       {new URL(prompt.link).hostname}
                     </a>
-                    <p className="mt-1 text-sm text-gray-600">{prompt.text}</p>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{prompt.text}</p>
                   </div>
                   <div className="flex ml-4">
                     <button
