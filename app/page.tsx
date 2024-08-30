@@ -3,11 +3,18 @@
 import { useState, useEffect } from 'react'
 import { PlusIcon, MagnifyingGlassIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
 
+interface Prompt {
+  id?: number;
+  text: string;
+  name: string;
+  link: string;
+}
+
 export default function Component() {
-  const [prompts, setPrompts] = useState([])
-  const [newPrompt, setNewPrompt] = useState({ text: '', name: '', type: '' })
+  const [prompts, setPrompts] = useState<Prompt[]>([])
+  const [newPrompt, setNewPrompt] = useState<Prompt>({ id: 0, text: '', name: '', link: '' })
   const [searchTerm, setSearchTerm] = useState('')
-  const [editingPrompt, setEditingPrompt] = useState(null)
+  const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null)
 
   useEffect(() => {
     // Load prompts from localStorage on component mount
@@ -24,34 +31,36 @@ export default function Component() {
     }
   }, [prompts])
 
-  const addPrompt = (e) => {
+  const addPrompt = (e: React.FormEvent) => {
     e.preventDefault()
-    const newPrompts = [...prompts, { ...newPrompt, id: Date.now() }]
+    const newPrompts: Prompt[] = [...prompts, { ...newPrompt, id: Date.now() }]
     setPrompts(newPrompts)
     localStorage.setItem('prompts', JSON.stringify(newPrompts))
-    setNewPrompt({ text: '', name: '', type: '' })
+    setNewPrompt({ text: '', name: '', link: '' })
   }
 
-  const deletePrompt = (id) => {
+  const deletePrompt = (id: number) => {
     setPrompts(prompts.filter(prompt => prompt.id !== id))
   }
 
-  const editPrompt = (prompt) => {
+  const editPrompt = (prompt: Prompt) => {
     setEditingPrompt(prompt)
-    setNewPrompt({ text: prompt.text, name: prompt.name, type: prompt.type })
+    setNewPrompt({ text: prompt.text, name: prompt.name, link: prompt.link })
   }
 
-  const updatePrompt = (e) => {
+  const updatePrompt = (e: React.FormEvent) => {
     e.preventDefault()
-    setPrompts(prompts.map(p => p.id === editingPrompt.id ? { ...newPrompt, id: p.id } : p))
-    setNewPrompt({ text: '', name: '', type: '' })
-    setEditingPrompt(null)
+    if (editingPrompt) {
+      setPrompts(prompts.map(p => p.id === editingPrompt.id ? { ...newPrompt, id: p.id } : p))
+      setNewPrompt({ text: '', name: '', link: '' })
+      setEditingPrompt(null)
+    }
   }
 
   const filteredPrompts = prompts.filter(prompt => 
     prompt.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
     prompt.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    prompt.type.toLowerCase().includes(searchTerm.toLowerCase())
+    prompt.link.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   return (
@@ -77,7 +86,7 @@ export default function Component() {
             <textarea
               placeholder="Enter your prompt..."
               className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500"
-              rows="4"
+              rows={4}
               value={newPrompt.text}
               onChange={(e) => setNewPrompt({ ...newPrompt, text: e.target.value })}
               required
@@ -92,11 +101,11 @@ export default function Component() {
               onChange={(e) => setNewPrompt({ ...newPrompt, name: e.target.value })}
             />
             <input
-              type="text"
-              placeholder="Prompt Type"
+              type="url"
+              placeholder="Prompt Link"
               className="flex-1 ml-2 px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500"
-              value={newPrompt.type}
-              onChange={(e) => setNewPrompt({ ...newPrompt, type: e.target.value })}
+              value={newPrompt.link}
+              onChange={(e) => setNewPrompt({ ...newPrompt, link: e.target.value })}
             />
           </div>
           <button type="submit" className="w-full px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
@@ -112,7 +121,9 @@ export default function Component() {
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate">{prompt.name || 'Unnamed Prompt'}</p>
-                    <p className="text-sm text-gray-500">{prompt.type || 'No Type'}</p>
+                    <a href={prompt.link} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-500 hover:underline">
+                      {new URL(prompt.link).hostname}
+                    </a>
                     <p className="mt-1 text-sm text-gray-600">{prompt.text}</p>
                   </div>
                   <div className="flex ml-4">
@@ -133,7 +144,7 @@ export default function Component() {
                       <PencilIcon className="h-5 w-5" />
                     </button>
                     <button
-                      onClick={() => deletePrompt(prompt.id)}
+                      onClick={() => deletePrompt(prompt.id!)}
                       className="p-2 text-gray-400 hover:text-gray-500"
                     >
                       <span className="sr-only">Delete</span>
