@@ -1,21 +1,51 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { PlusIcon, MagnifyingGlassIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
 
 export default function Component() {
   const [prompts, setPrompts] = useState([])
   const [newPrompt, setNewPrompt] = useState({ text: '', name: '', type: '' })
   const [searchTerm, setSearchTerm] = useState('')
+  const [editingPrompt, setEditingPrompt] = useState(null)
+
+  useEffect(() => {
+    // Load prompts from localStorage on component mount
+    const storedPrompts = localStorage.getItem('prompts')
+    if (storedPrompts) {
+      setPrompts(JSON.parse(storedPrompts))
+    }
+  }, [])
+
+  useEffect(() => {
+    // Save prompts to localStorage whenever they change
+    if (prompts.length > 0) {
+      localStorage.setItem('prompts', JSON.stringify(prompts))
+    }
+  }, [prompts])
 
   const addPrompt = (e) => {
     e.preventDefault()
-    setPrompts([...prompts, { ...newPrompt, id: Date.now() }])
+    const newPrompts = [...prompts, { ...newPrompt, id: Date.now() }]
+    setPrompts(newPrompts)
+    localStorage.setItem('prompts', JSON.stringify(newPrompts))
     setNewPrompt({ text: '', name: '', type: '' })
   }
 
   const deletePrompt = (id) => {
     setPrompts(prompts.filter(prompt => prompt.id !== id))
+  }
+
+  const editPrompt = (prompt) => {
+    setEditingPrompt(prompt)
+    setNewPrompt({ text: prompt.text, name: prompt.name, type: prompt.type })
+  }
+
+  const updatePrompt = (e) => {
+    e.preventDefault()
+    setPrompts(prompts.map(p => p.id === editingPrompt.id ? { ...newPrompt, id: p.id } : p))
+    setNewPrompt({ text: '', name: '', type: '' })
+    setEditingPrompt(null)
   }
 
   const filteredPrompts = prompts.filter(prompt => 
@@ -27,8 +57,8 @@ export default function Component() {
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          <div className="relative flex-grow max-w-xl">
+        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-center items-center">
+          <div className="relative w-full max-w-xl">
             <input
               type="text"
               placeholder="Search prompts..."
@@ -38,14 +68,11 @@ export default function Component() {
             />
             <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
           </div>
-          <button className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-            Login with Google
-          </button>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <form onSubmit={addPrompt} className="mb-8 bg-white shadow sm:rounded-lg p-6">
+        <form onSubmit={editingPrompt ? updatePrompt : addPrompt} className="mb-8 bg-white shadow sm:rounded-lg p-6">
           <div className="mb-4">
             <textarea
               placeholder="Enter your prompt..."
@@ -74,7 +101,7 @@ export default function Component() {
           </div>
           <button type="submit" className="w-full px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
             <PlusIcon className="inline-block w-5 h-5 mr-2" />
-            Add Prompt
+            {editingPrompt ? 'Update Prompt' : 'Add Prompt'}
           </button>
         </form>
 
@@ -98,7 +125,10 @@ export default function Component() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                       </svg>
                     </button>
-                    <button className="mr-2 p-2 text-gray-400 hover:text-gray-500">
+                    <button 
+                      onClick={() => editPrompt(prompt)}
+                      className="mr-2 p-2 text-gray-400 hover:text-gray-500"
+                    >
                       <span className="sr-only">Edit</span>
                       <PencilIcon className="h-5 w-5" />
                     </button>
